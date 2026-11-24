@@ -44,6 +44,10 @@ class CheckResponse(BaseModel):
     check_id: int | None                # None when no database is configured
     verdict: Literal["scam", "suspicious", "safe"]
     score: int
+    category: str | None                # from Gemini; None if the LLM wasn't available
+    explanation: str | None             # in the requested language
+    impersonated_entity: str | None
+    llm_likelihood: int | None
     reasons: list[str]
     highlights: list[Highlight]
     extracted: Extracted

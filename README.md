@@ -2,8 +2,8 @@
 
 Paste an SMS/WhatsApp message → get a verdict (🔴 Scam / 🟡 Suspicious / 🟢 Likely safe), a 0–100 risk score and plain-language reasons.
 
-**Status:** Steps 1–7 done — extraction, rule scoring, privacy masking, Postgres storage, link checks.
-Next: Step 8 (Gemini classification + explanation).
+**Status:** Steps 1–8 done — extraction, rules, privacy masking, Postgres, link checks, Gemini.
+Next: Step 11 (evaluation on a real test set), then the React frontend.
 
 ## Run it locally
 
@@ -36,6 +36,34 @@ Restart `uvicorn`. Then check:
 
 Without the keys the app still works: nothing is saved and `safe_browsing_hit` is `null` (unknown).
 
+## Gemini (Step 8)
+
+In `backend/.env`:
+```
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-3.5-flash-lite
+```
+Gemini returns a category, a 0–100 scam likelihood, tactics, red-flag phrases, the impersonated
+organisation and a 2–3 sentence explanation in English, Tamil or Hindi.
+
+**The LLM is not the only judge.** Its likelihood is one of three signals:
+
+| Signal | Weight |
+|---|---|
+| Gemini likelihood | 0.40 |
+| Link risk | 0.35 |
+| Rule score | 0.25 |
+
+- Missing signals (no links, Gemini down) are dropped and the weights re-normalised.
+- If every signal says risky, the strongest one wins instead of the average.
+- A Safe Browsing hit forces the score to at least 90.
+- Verdict: ≥ 70 scam · 40–69 suspicious · < 40 safe.
+
+Safety rails on the LLM: JSON schema output → Pydantic validation → one retry → fall back to
+rules + links. Red-flag phrases that don't appear in the message are dropped (hallucination guard).
+The message is labelled as untrusted data in the prompt (prompt-injection guard). Results are cached
+per message + language, so repeat checks don't use quota.
+
 ## How link checking works
 
 1. **SSRF guard** — only public `http(s)` addresses on ports 80/443; private, loopback and cloud-metadata IPs are blocked, re-checked on **every redirect hop**
@@ -55,7 +83,8 @@ pytest                      # unit + API tests
 
 cd ..
 python eval/run_eval.py           # rules only
-python eval/run_eval.py --links   # rules only vs rules + links (real network calls)
+python eval/run_eval.py --links   # + rules + links (real network calls)
+python eval/run_eval.py --links --llm   # full table: rules / rules+links / LLM only / combined
 ```
 
 ## Project layout
@@ -74,6 +103,7 @@ backend/app/
     rules.py         keyword groups + combo bonuses, highlight positions
     privacy.py       masking before storage, message hash
     links.py         SSRF guard, unshorten, Safe Browsing, RDAP, lookalikes
+    llm.py           Gemini classification + explanation, validation, retries
     scorer.py        combines rules + links + LLM (re-weights missing signals)
 testset/messages.csv  labelled messages (replace the samples with real ones)
 eval/run_eval.py      metrics

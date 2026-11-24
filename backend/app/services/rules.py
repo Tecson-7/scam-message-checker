@@ -154,7 +154,7 @@ def score_rules(text: str, extracted: dict) -> dict:
             score += bonus
             reasons.append(reason)
 
-    matches = _drop_nested(matches)
+    matches = merge_spans(matches)
     return {
         "score": min(score, 100),
         "groups": sorted(hit_groups),
@@ -163,7 +163,7 @@ def score_rules(text: str, extracted: dict) -> dict:
     }
 
 
-def _drop_nested(matches: list[dict]) -> list[dict]:
+def merge_spans(matches: list[dict]) -> list[dict]:
     """Keep the longest span when matches overlap (e.g. 'will be blocked' vs 'blocked')."""
     matches.sort(key=lambda m: (m["start"], -(m["end"] - m["start"])))
     kept = []

@@ -9,8 +9,15 @@ from .models import Check, Link, LinkCache, utcnow
 LINK_CACHE_HOURS = 24
 
 
+def get_cached_llm(session: Session, message_hash: str, language: str) -> dict | None:
+    """Same message + language checked before -> reuse Gemini's answer (saves quota)."""
+    return session.scalar(
+        select(Check.llm_result).where(Check.message_hash == message_hash, Check.language == language)
+    )
+
+
 def save_check(session: Session, *, message_hash: str, masked_text: str, language: str,
-               result: dict, tactics: list, links: list[dict]) -> int:
+               result: dict, tactics: list, links: list[dict], llm: dict | None = None) -> int:
     """Insert a check, or update the existing one if the same message was checked before."""
     check = session.scalar(
         select(Check).where(Check.message_hash == message_hash, Check.language == language)
@@ -27,6 +34,9 @@ def save_check(session: Session, *, message_hash: str, masked_text: str, languag
     check.score = result["score"]
     check.reasons = result["reasons"]
     check.tactics = tactics
+    if llm is not None:
+        check.llm_result = llm
+        check.category = llm["category"]
 
     for l in links:
         check.links.append(Link(

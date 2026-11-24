@@ -40,3 +40,13 @@ def test_different_messages_get_new_rows(session):
 def test_link_cache_roundtrip(session):
     save_link_cache(session, [LINK])
     assert get_cached_links(session, ["bit.ly/x", "other.com"]) == {"bit.ly/x": LINK}
+
+
+def test_llm_result_is_cached_per_language(session):
+    from app.repository import get_cached_llm
+    llm = {"category": "kyc_bank", "is_scam_likelihood": 90, "tactics": [], "red_flag_phrases": [],
+           "explanation": "x", "impersonated_entity": "SBI"}
+    save_check(session, message_hash="h", masked_text="m", language="ta",
+               result=RESULT, tactics=[], links=[], llm=llm)
+    assert get_cached_llm(session, "h", "ta") == llm
+    assert get_cached_llm(session, "h", "en") is None

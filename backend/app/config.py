@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     # Filled in later steps - the app runs without them for now
     database_url: str | None = None
     gemini_api_key: str | None = None
+    gemini_model: str = "gemini-3.5-flash-lite"   # change in .env if Google renames models
     safe_browsing_key: str | None = None
 
     frontend_origin: str = "http://localhost:5173"
