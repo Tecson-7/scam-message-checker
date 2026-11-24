@@ -1,0 +1,13 @@
+id,text,label,category,source
+1,"Dear customer your SBI account will be blocked today. Update KYC immediately: sbi-kyc-update.xyz",scam,kyc_bank,sample
+2,"Dear consumer, your electricity power will be disconnected tonight at 9.30pm because your previous month bill was not updated. Please contact our electricity officer 9876543210 immediately.",scam,electricity,sample
+3,"Congratulations! You have won Rs.25,00,000 in KBC lucky draw. To claim pay processing fee Rs.4999 to claim.desk@ybl",scam,lottery,sample
+4,"Part time job! Earn Rs.3000 daily by liking YouTube videos. Work from home. WhatsApp us on 9123456789",scam,job_offer,sample
+5,"India Post: Your parcel is held at warehouse due to incomplete address. Update within 24 hours at indiapost-track.top",scam,parcel,sample
+6,"Your HDFC reward points will expire today. Redeem now: hdfc-rewards.cfd",scam,kyc_bank,sample
+7,"482913 is your OTP for txn of Rs.500.00 at AMAZON. Do not share OTP with anyone. -SBI",legit,legit,sample
+8,"Your Amazon order #405-1234567 has been delivered. Track: amzn.in/d/abc12",legit,legit,sample
+9,"Your Swiggy order is out for delivery and will arrive in 20 mins.",legit,legit,sample
+10,"Dear consumer, bill amount Rs.1,240 for service no 123456789 is due on 05-12-2026. Pay via official TNPDCL website or app.",legit,legit,sample
+11,"Rs.2,000.00 debited from A/c XX4521 on 21-11-26 to VPA swiggy@icici. Not you? Call 1800-1234 -HDFC Bank",legit,legit,sample
+12,"Hi, are we still meeting for lunch today at 1?",legit,legit,sample
